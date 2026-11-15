@@ -1,0 +1,102 @@
+name: writefreely
+base: core26
+adopt-info: writefreely
+license: AGPL-3.0-or-later
+title: WriteFreely
+summary: A clean, Markdown-based publishing platform made for writers
+description: |
+  WriteFreely is a clean, minimalist publishing platform made for writers.
+  Start a blog, share knowledge within your organization, or build a community
+  around the shared act of writing.
+
+  First, install the WriteFreely snap:
+
+      sudo snap install writefreely
+
+  After installing, create the configuration file (as root). See advice for the
+  recommended configuration, especially "Running in Production", at
+  https://writefreely.org/start
+
+      sudo snap run writefreely config start
+
+  If you wish to edit the config file manually, it can be found at:
+
+      /var/snap/writefreely/current/config.ini
+
+  After editing the configuration file, generate encryption keys (as root):
+
+      sudo snap run writefreely keys generate
+
+  Finally, start and enable the service:
+
+      sudo snap start --enable writefreely
+
+  The WriteFreely snap will auto-refresh when updates are available. If
+  anything ever stops working after a refresh, you can revert to the state
+  prior to the refresh (warning: any changes since the refresh will be lost):
+
+      sudo snap revert writefreely
+
+source-code:
+  - https://github.com/writefreely/writefreely
+contact:
+  - https://github.com/writefreely/writefreely/issues
+issues:
+  - https://github.com/writefreely/writefreely/issues
+donation:
+  - https://github.com/sponsors/writefreely
+  - https://opencollective.com/writefreely
+website:
+  - https://writefreely.org
+icon: static/img/wf-sq.png
+
+grade: stable
+confinement: strict
+
+apps:
+  writefreely:
+    command: bin/launch-writefreely
+    daemon: simple
+    install-mode: disable # user enables after generating config and keys
+    plugs:
+      - network
+      - network-bind
+
+parts:
+  writefreely:
+    plugin: nil
+    source: .
+    build-snaps:
+      - go/latest/stable
+      - node/26/stable # to install lessc and prose to generate static assets
+    override-pull: |
+      craftctl default
+      craftctl set version="$(grep 'softwareVer = ".*"' app.go | cut -d '"' -f 2)"
+      # Install lessc to generate static assets, without sudo
+      sed 's/sudo //g' less/install-less.sh | sh -e
+      # Install npm dependencies for prose
+      pushd prose
+      npm install
+      popd
+    override-build: |
+      install -Dm755 -t "${CRAFT_PART_INSTALL}/bin" snap/bin/launch-writefreely
+      go build -v -o "${CRAFT_PART_INSTALL}/bin/writefreely" -tags='sqlite' ./cmd/writefreely/
+
+      # Build static assets from less
+      pushd less
+      CSSDIR="../static/css"
+      lessc app.less --clean-css="--s1 --advanced" ${CSSDIR}/write.css
+      lessc fonts.less --clean-css="--s1 --advanced" ${CSSDIR}/fonts.css
+      lessc icons.less --clean-css="--s1 --advanced" ${CSSDIR}/icons.css
+      lessc prose.less --clean-css="--s1 --advanced" ${CSSDIR}/prose.css
+      popd
+
+      # Build ProseMirror
+      pushd prose
+      npm run-script build
+      popd
+
+      # Copy static assets to install directory
+      cp -av static "${CRAFT_PART_INSTALL}/static"
+      cp -av templates "${CRAFT_PART_INSTALL}/templates"
+      cp -av pages "${CRAFT_PART_INSTALL}/pages"

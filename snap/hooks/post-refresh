@@ -1,0 +1,8 @@
+#!/bin/sh -e
+
+# Assume that db exists if config.ini exists
+if [ ! -f "${SNAP_DATA}/config.ini" ]; then
+    exit 0
+fi
+
+exec "${SNAP}/bin/launch-writefreely" db migrate

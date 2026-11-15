@@ -1,0 +1,16 @@
+#!/bin/sh
+
+if [ "$SNAP_EUID" -ne 0 ]; then
+    echo "must run as root"
+    exit 1
+fi
+
+# Make sure we run from "$SNAP_DATA" no matter where it's invoked from
+cd "${SNAP_DATA}"
+
+# Set the template, static, and pages parent dirs to "$SNAP", where they are
+if [ -e config.ini ]; then
+    sed -Ei 's,((templates|static|pages)_parent_dir\s*=).*,\1 '"$SNAP,g" config.ini
+fi
+
+exec "${SNAP}/bin/writefreely" "$@"

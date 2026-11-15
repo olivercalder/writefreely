@@ -1,0 +1,5 @@
+#!/bin/sh -e
+
+# Record pre-refresh version in case the next version wants to know it for some
+# reason, perhaps a post-refresh migration to decide whether to run.
+snapctl set previous-version="$SNAP_VERSION"
