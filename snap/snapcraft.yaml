@@ -1,4 +1,4 @@
-name: writefreely
+name: writefreely-oac
 base: core26
 adopt-info: writefreely
 license: AGPL-3.0-or-later
@@ -9,40 +9,44 @@ description: |
   Start a blog, share knowledge within your organization, or build a community
   around the shared act of writing.
 
+  This is a 3rd party snap package of WriteFreely. This package is not
+  affiliated with or endorsed by the upstream WriteFreely developers. Please
+  direct any issues at the snap-specific fork, rather than the upstream project.
+
   First, install the WriteFreely snap:
 
-      sudo snap install writefreely
+      sudo snap install writefreely-oac
 
   After installing, create the configuration file (as root). See advice for the
   recommended configuration, especially "Running in Production", at
   https://writefreely.org/start
 
-      sudo snap run writefreely config start
+      sudo snap run writefreely-oac.writefreely config start
 
   If you wish to edit the config file manually, it can be found at:
 
-      /var/snap/writefreely/current/config.ini
+      /var/snap/writefreely-oac/current/config.ini
 
   After editing the configuration file, generate encryption keys (as root):
 
-      sudo snap run writefreely keys generate
+      sudo snap run writefreely-oac.writefreely keys generate
 
   Finally, start and enable the service:
 
-      sudo snap start --enable writefreely
+      sudo snap start --enable writefreely-oac.writefreely
 
   The WriteFreely snap will auto-refresh when updates are available. If
   anything ever stops working after a refresh, you can revert to the state
   prior to the refresh (warning: any changes since the refresh will be lost):
 
-      sudo snap revert writefreely
+      sudo snap revert writefreely-oac
 
 source-code:
-  - https://github.com/writefreely/writefreely
+  - https://github.com/olivercalder/writefreely
 contact:
-  - https://github.com/writefreely/writefreely/issues
+  - https://github.com/olivercalder/writefreely/issues
 issues:
-  - https://github.com/writefreely/writefreely/issues
+  - https://github.com/olivercalder/writefreely/issues
 donation:
   - https://github.com/sponsors/writefreely
   - https://opencollective.com/writefreely
